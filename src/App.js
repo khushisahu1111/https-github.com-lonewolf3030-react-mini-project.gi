@@ -1,23 +1,52 @@
-import logo from './logo.svg';
 import './App.css';
+import Header from './components/header/Header';
+import { useState, useEffect } from 'react';
+import Products from './components/Products/Products';
 
 function App() {
+
+const [products, setProducts] = useState([]);
+const [filteredProducts, setFilteredProducts] = useState([])
+const [searchText, setSearchText] = useState("");
+
+const handleSearchTextChange = (e) => {
+    setSearchText(e.target.value);
+}
+
+console.log("search term", searchText);
+
+
+useEffect(() => {
+  if(searchText.trim() === ""){
+    setFilteredProducts(products)
+  }else{
+    const result = filteredProducts.filter((item) => item.title.toLowerCase()
+    .includes(searchText.toLowerCase()))
+  
+    setFilteredProducts(result)
+  }
+
+
+}, [searchText, filteredProducts, products])
+
+useEffect(() => {
+  const fetchProducts = async() => {
+     const response = await fetch("https://fakestoreapi.com/products");
+     const data = await response.json();
+     setProducts(data)
+     setFilteredProducts(data)
+  }
+
+  fetchProducts();
+}, []);
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        <Header handleSearchTextChange={handleSearchTextChange} searchText = {searchText}/>
+        <Products  products = {filteredProducts}/>
+
+
     </div>
   );
 }
